@@ -109,3 +109,6 @@
 [submodule "ventas/ms-clientes"]
 	path = ventas/ms-clientes
 	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-clientes.git
+[submodule "composer/api-gateway"]
+	path = composer/api-gateway
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-api-gateway.git
