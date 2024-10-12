@@ -7,3 +7,30 @@
 [submodule "ms-config/eureka-discovery-server"]
 	path = ms-config/eureka-discovery-server
 	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-eureka-discovery-server.git
+[submodule "composer/produccion"]
+	path = composer/produccion
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-produccion.git
+[submodule "composer/apareamiento"]
+	path = composer/apareamiento
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-apareamiento.git
+[submodule "composer/ventas"]
+	path = composer/ventas
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ventas.git
+[submodule "composer/finanzas"]
+	path = composer/finanzas
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-finanzas.git
+[submodule "composer/personal"]
+	path = composer/personal
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-personal.git
+[submodule "composer/infraestructura"]
+	path = composer/infraestructura
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-infraestructura.git
+[submodule "composer/integracion"]
+	path = composer/integracion
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-integracion.git
+[submodule "composer/salud"]
+	path = composer/salud
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-salud.git
+[submodule "composer/inventario"]
+	path = composer/inventario
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-inventario.git
