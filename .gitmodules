@@ -88,3 +88,6 @@
 [submodule "integracion/ms-conexiones-externas"]
 	path = integracion/ms-conexiones-externas
 	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-conexiones-externas.git
+[submodule "infraestructura/ms-infraestructura"]
+	path = infraestructura/ms-infraestructura
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-infraestructura.git
