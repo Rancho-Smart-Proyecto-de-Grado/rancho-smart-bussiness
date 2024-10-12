@@ -85,3 +85,6 @@
 [submodule "produccion/ms-alimentacion-suplementos"]
 	path = produccion/ms-alimentacion-suplementos
 	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-alimentacion-suplementos.git
+[submodule "integracion-ms-conexiones-externas"]
+	path = integracion-ms-conexiones-externas
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-conexiones-externas.git
