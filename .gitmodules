@@ -34,3 +34,18 @@
 [submodule "composer/inventario"]
 	path = composer/inventario
 	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-inventario.git
+[submodule "salud/ms-historial-medico"]
+	path = salud/ms-historial-medico
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-historial-medico.git
+[submodule "salud/ms-procedimientos-medicos"]
+	path = salud/ms-procedimientos-medicos
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-procedimientos-medicos.git
+[submodule "salud/ms-consultas"]
+	path = salud/ms-consultas
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-consultas.git
+[submodule "salud/ms-vacunas"]
+	path = salud/ms-vacunas
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-vacunas.git
+[submodule "salud/ms-tratamientos"]
+	path = salud/ms-tratamientos
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-tratamientos.git
