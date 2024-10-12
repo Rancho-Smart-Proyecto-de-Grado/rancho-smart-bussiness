@@ -58,3 +58,18 @@
 [submodule "inventario/ms-alimentos"]
 	path = inventario/ms-alimentos
 	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-alimentos.git
+[submodule "apareamientos/ms-partos"]
+	path = apareamientos/ms-partos
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-partos.git
+[submodule "apareamientos/ms-cruces"]
+	path = apareamientos/ms-cruces
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-cruces.git
+[submodule "apareamientos/ms-planificacion-cruces"]
+	path = apareamientos/ms-planificacion-cruces
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-planificacion-cruces.git
+[submodule "apareamientos/ms-optimizacion-cruces"]
+	path = apareamientos/ms-optimizacion-cruces
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-optimizacion-cruces.git
+[submodule "apareamientos/ms-genealogia"]
+	path = apareamientos/ms-genealogia
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-genealogia.git
