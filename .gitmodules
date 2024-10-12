@@ -73,3 +73,15 @@
 [submodule "apareamientos/ms-genealogia"]
 	path = apareamientos/ms-genealogia
 	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-genealogia.git
+[submodule "produccion/ms-produccion-leche"]
+	path = produccion/ms-produccion-leche
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-produccion-leche.git
+[submodule "produccion/ms-produccion-carne"]
+	path = produccion/ms-produccion-carne
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-produccion-carne.git
+[submodule "produccion/ms-control-calidad"]
+	path = produccion/ms-control-calidad
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-control-calidad.git
+[submodule "produccion/ms-alimentacion-suplementos"]
+	path = produccion/ms-alimentacion-suplementos
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-alimentacion-suplementos.git
