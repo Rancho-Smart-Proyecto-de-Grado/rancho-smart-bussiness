@@ -91,3 +91,6 @@
 [submodule "infraestructura/ms-infraestructura"]
 	path = infraestructura/ms-infraestructura
 	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-infraestructura.git
+[submodule "personal/ms-usuarios"]
+	path = personal/ms-usuarios
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-usuarios.git
