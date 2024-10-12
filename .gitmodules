@@ -94,3 +94,6 @@
 [submodule "personal/ms-usuarios"]
 	path = personal/ms-usuarios
 	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-usuarios.git
+[submodule "finanzas/ms-contabilidad"]
+	path = finanzas/ms-contabilidad
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-contabilidad.git
