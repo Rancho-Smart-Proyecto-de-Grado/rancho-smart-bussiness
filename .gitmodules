@@ -1,0 +1,9 @@
+[submodule "ms-config/kafka-server"]
+	path = ms-config/kafka-server
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-kafka-server.git
+[submodule "ms-config/config-server"]
+	path = ms-config/config-server
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-config-server.git
+[submodule "ms-config/eureka-discovery-server"]
+	path = ms-config/eureka-discovery-server
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-eureka-discovery-server.git
