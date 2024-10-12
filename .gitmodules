@@ -97,3 +97,15 @@
 [submodule "finanzas/ms-contabilidad"]
 	path = finanzas/ms-contabilidad
 	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-contabilidad.git
+[submodule "ventas/ms-inventario-ventas"]
+	path = ventas/ms-inventario-ventas
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-inventario-ventas.git
+[submodule "ventas/ms-ventas"]
+	path = ventas/ms-ventas
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-ventas.git
+[submodule "ventas/ms-mercado"]
+	path = ventas/ms-mercado
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-mercado.git
+[submodule "ventas/ms-clientes"]
+	path = ventas/ms-clientes
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-clientes.git
