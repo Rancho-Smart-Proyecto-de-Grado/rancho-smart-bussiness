@@ -49,3 +49,12 @@
 [submodule "salud/ms-tratamientos"]
 	path = salud/ms-tratamientos
 	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-tratamientos.git
+[submodule "inventario/ms-lotes"]
+	path = inventario/ms-lotes
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-lotes.git
+[submodule "inventario/ms-animales"]
+	path = inventario/ms-animales
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-animales.git
+[submodule "inventario/ms-alimentos"]
+	path = inventario/ms-alimentos
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-alimentos.git
