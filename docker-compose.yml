@@ -1,0 +1,1388 @@
+services:
+  eureka-server:
+    build: 
+      context: ./Config/rancho-smart-eureka-discovery-server
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+    networks:
+      - rancho-smart-network
+    env_file:
+      - .env
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper
+    container_name: eureka-server
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  zookeeper:
+    image: 'confluentinc/cp-zookeeper:latest'
+    env_file:
+      - .env
+    ports:
+      - '2181:2181'
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2181"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 5s
+    container_name: zookeper
+    networks:
+      - rancho-smart-network
+
+  kafka:
+    image: 'confluentinc/cp-kafka:latest'
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    env_file:
+      - .env
+    ports:
+      - '9092:9092'
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "9092"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 5s
+    container_name: kafka
+    networks:
+      - rancho-smart-network
+      
+  mariadb_keycloak:
+    image: mariadb:lts
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: keycloakdb
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: RanchoSmart2@24
+    container_name: mariadb_keycloak
+    ports:
+      - "33100:3306"
+    networks:
+      - rancho-smart-network
+    volumes:
+      - mariadb_keycloak_data:/var/lib/mysql
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_DB: ${KEYCLOAK_DB_VENDOR}
+      KC_DB_URL: ${KEYCLOAK_DB_URL}
+      KC_DB_USERNAME: ${DB_USERNAME}
+      KC_DB_PASSWORD: RanchoSmart2@24
+      KC_HOSTNAME: ${KEYCLOAK_HOSTNAME}
+    container_name: keycloak
+    command: ["start-dev"]
+    env_file:
+      - .env
+    ports:
+      - "${KEYCLOAK_HTTP_PORT}:8080"
+    depends_on:
+      - mariadb_keycloak
+    networks:
+      - rancho-smart-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/realms/master"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+
+  api-gateway:
+    build: 
+      context: ./Config/rancho-smart-api-gateway
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    ports:
+      - "8080:8080"
+    networks:
+      - rancho-smart-network
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      zookeeper:
+        condition: service_healthy
+    env_file:
+      - .env
+    container_name: api-gateway
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+
+  config-server:
+    build: 
+      context: ./Config/rancho-smart-config-server
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    ports:
+      - "8888:8888"
+    networks:
+      - rancho-smart-network
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      zookeeper:
+        condition: service_healthy
+    env_file:
+      - .env
+    container_name: config-server
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  mariadb_cruces:
+    image: mariadb:lts
+    container_name: mariadb_cruces
+    environment:
+      MYSQL_ROOT_PASSWORD: RanchoSmart2@24
+      MYSQL_DATABASE: DB_MS_CRUCES
+      MYSQL_USER: rancho-smart
+      MYSQL_PASSWORD: RanchoSmart2@24
+    ports:
+      - "33061:3306"
+    networks:
+      - rancho-smart-network
+    volumes:
+      - mariadb_cruces_data:/var/lib/mysql
+  
+  ms-cruces:
+    build: 
+      context: ./Apareamiento/rancho-smart-ms-cruces
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+      apareamiento-composer:
+        condition: service_healthy
+    env_file:
+      - .env
+    container_name: ms-cruces
+    ports:
+      - "8100:8100"
+    networks:
+      - rancho-smart-network
+
+  mariadb_genealogia:
+    image: mariadb:lts
+    container_name: mariadb_genealogia
+    environment:
+      MYSQL_ROOT_PASSWORD: RanchoSmart2@24
+      MYSQL_DATABASE: DB_MS_GENEALOGIA
+      MYSQL_USER: rancho-smart
+      MYSQL_PASSWORD: RanchoSmart2@24
+    ports:
+      - "33062:3306"
+    networks:
+      - rancho-smart-network
+    volumes:
+      - mariadb_genealogia_data:/var/lib/mysql
+  
+  ms-genealogia:
+    build: 
+      context: ./Apareamiento/rancho-smart-ms-genealogia
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+      apareamiento-composer:
+        condition: service_healthy
+    env_file:
+      - .env
+    container_name: ms-genealogia
+    ports:
+      - "8101:8101"
+    networks:
+      - rancho-smart-network
+
+  mariadb_optimizacion_cruces:
+    image: mariadb:lts
+    container_name: mariadb_optimizacion_cruces
+    environment:
+      MYSQL_ROOT_PASSWORD: RanchoSmart2@24
+      MYSQL_DATABASE: DB_MS_OPTIMIZACION_CRUCES
+      MYSQL_USER: rancho-smart
+      MYSQL_PASSWORD: RanchoSmart2@24
+    ports:
+      - "33063:3306"
+    networks:
+      - rancho-smart-network
+    volumes:
+      - mariadb_optimizacion_cruces_data:/var/lib/mysql
+
+  ms-optimizacion-cruces:
+    build: 
+      context: ./Apareamiento/rancho-smart-ms-optimizacion-cruces
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+      apareamiento-composer:
+        condition: service_healthy
+    env_file:
+      - .env
+    container_name: ms-optimizacion-cruces
+    ports:
+      - "8102:8102"
+    networks:
+      - rancho-smart-network
+
+  mariadb_planificacion_cruces:
+    image: mariadb:lts
+    container_name: mariadb_planificacion_cruces
+    environment:
+      MYSQL_ROOT_PASSWORD: RanchoSmart2@24
+      MYSQL_DATABASE: DB_MS_PLANIFICACION_CRUCES
+      MYSQL_USER: rancho-smart
+      MYSQL_PASSWORD: RanchoSmart2@24
+    ports:
+      - "33064:3306"
+    networks:
+      - rancho-smart-network
+    volumes:
+      - mariadb_planificacion_cruces_data:/var/lib/mysql
+
+  ms-planificacion-cruces:
+    build: 
+      context: ./Apareamiento/rancho-smart-ms-planificacion-cruces
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+      apareamiento-composer:
+        condition: service_healthy
+    env_file:
+      - .env
+    container_name: ms-planificacion-cruces
+    ports:
+      - "8103:8103"
+    networks:
+      - rancho-smart-network
+
+  mariadb_partos:
+    image: mariadb:lts
+    container_name: mariadb_partos
+    environment:
+      MYSQL_ROOT_PASSWORD: RanchoSmart2@24
+      MYSQL_DATABASE: DB_MS_PARTOS
+      MYSQL_USER: rancho-smart
+      MYSQL_PASSWORD: RanchoSmart2@24
+    ports:
+      - "33065:3306"
+    networks:
+      - rancho-smart-network
+    volumes:
+      - mariadb_partos_data:/var/lib/mysql
+
+  ms-partos:
+    build: 
+      context: ./Apareamiento/rancho-smart-ms-partos
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+      apareamiento-composer:
+        condition: service_healthy
+    env_file:
+      - .env
+    container_name: ms-partos
+    ports:
+      - "8104:8104"
+    networks:
+      - rancho-smart-network
+
+#  mariadb_contabilidad:
+#    image: mariadb:lts
+#    container_name: mariadb_contabilidad
+#    environment:
+#      MYSQL_ROOT_PASSWORD: RanchoSmart2@24
+#      MYSQL_DATABASE: DB_MS_CONTABILIDAD
+#      MYSQL_USER: rancho-smart
+#      MYSQL_PASSWORD: RanchoSmart2@24
+#    ports:
+#      - "33066:3306"
+#    networks:
+#      - rancho-smart-network
+#    volumes:
+#      - mariadb_contabilidad_data:/var/lib/mysql
+#
+#  ms-contabilidad:
+#    build: 
+#      context: ./Finanzas/rancho-smart-ms-contabilidad
+#      dockerfile: Dockerfile
+#      args:
+#        GITHUB_TOKEN: ${GITHUB_TOKEN}
+#    depends_on:
+#      config-server: 
+#        condition: service_healthy
+#      api-gateway: 
+#        condition: service_healthy
+#      finanzas-composer:
+#        condition: service_healthy
+#    env_file:
+#      - .env
+#    container_name: ms-contabilidad
+#    ports:
+#      - "8200:8200"
+#    networks:
+#      - rancho-smart-network
+#
+  mariadb_infraestructura:
+    image: mariadb:lts
+    container_name: mariadb_infraestructura
+    environment:
+      MYSQL_ROOT_PASSWORD: RanchoSmart2@24
+      MYSQL_DATABASE: DB_MS_INFRAESTRUCTURA
+      MYSQL_USER: rancho-smart
+      MYSQL_PASSWORD: RanchoSmart2@24
+    ports:
+      - "33067:3306"
+    networks:
+      - rancho-smart-network
+    volumes:
+      - mariadb_infraestructura_data:/var/lib/mysql
+
+  ms-infraestructura:
+    build: 
+      context: ./Infraestructura/rancho-smart-ms-infraestructura
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+      infraestructura-composer:
+        condition: service_healthy
+    env_file:
+      - .env
+    container_name: ms-infraestructura
+    ports:
+      - "8300:8300"
+    networks:
+      - rancho-smart-network
+#
+#  mariadb_conexiones_externas:
+#    image: mariadb:lts
+#    container_name: mariadb_conexiones_externas
+#    environment:
+#      MYSQL_ROOT_PASSWORD: RanchoSmart2@24
+#      MYSQL_DATABASE: DB_MS_CONEXIONES_EXTERNAS
+#      MYSQL_USER: rancho-smart
+#      MYSQL_PASSWORD: RanchoSmart2@24
+#    ports:
+#      - "33068:3306"
+#    networks:
+#      - rancho-smart-network
+#    volumes:
+#      - mariadb_conexiones_externas_data:/var/lib/mysql
+#
+#  ms-conexiones-externas:
+#    build: 
+#      context: ./Integracion/rancho-smart-ms-conexiones-externas
+#      dockerfile: Dockerfile
+#      args:
+#        GITHUB_TOKEN: ${GITHUB_TOKEN}
+#    depends_on:
+#      config-server: 
+#        condition: service_healthy
+#      api-gateway: 
+#        condition: service_healthy
+#      integracion-composer:
+#        condition: service_healthy
+#    env_file:
+#      - .env
+#    container_name: ms-conexiones-externas
+#    ports:
+#      - "8400:8400"
+#    networks:
+#      - rancho-smart-network
+#
+  mariadb_alimentos:
+    image: mariadb:lts
+    container_name: mariadb_alimentos
+    environment:
+      MYSQL_ROOT_PASSWORD: RanchoSmart2@24
+      MYSQL_DATABASE: DB_MS_ALIMENTOS
+      MYSQL_USER: rancho-smart
+      MYSQL_PASSWORD: RanchoSmart2@24
+    ports:
+      - "33069:3306"
+    networks:
+      - rancho-smart-network
+    volumes:
+      - mariadb_alimentos_data:/var/lib/mysql
+
+  ms-alimentos:
+    build: 
+      context: ./Inventario/rancho-smart-ms-alimentos
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+      inventario-composer:
+        condition: service_healthy
+    env_file:
+      - .env
+    container_name: ms-alimentos
+    ports:
+      - "8500:8500"
+    networks:
+      - rancho-smart-network
+
+  mariadb_animales:
+    image: mariadb:lts
+    container_name: mariadb_animales
+    environment:
+      MYSQL_ROOT_PASSWORD: RanchoSmart2@24
+      MYSQL_DATABASE: DB_MS_ANIMALES
+      MYSQL_USER: rancho-smart
+      MYSQL_PASSWORD: RanchoSmart2@24
+    ports:
+      - "33070:3306"
+    networks:
+      - rancho-smart-network
+    volumes:
+      - mariadb_animales_data:/var/lib/mysql
+
+  ms-animales:
+    build: 
+      context: ./Inventario/rancho-smart-ms-animales
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+      inventario-composer:
+        condition: service_healthy
+    env_file:
+      - .env
+    container_name: ms-animales
+    ports:
+      - "8501:8501"
+    networks:
+      - rancho-smart-network
+
+  mariadb_lotes:
+    image: mariadb:lts
+    container_name: mariadb_lotes
+    environment:
+      MYSQL_ROOT_PASSWORD: RanchoSmart2@24
+      MYSQL_DATABASE: DB_MS_LOTES
+      MYSQL_USER: rancho-smart
+      MYSQL_PASSWORD: RanchoSmart2@24
+    ports:
+      - "33071:3306"
+    networks:
+      - rancho-smart-network
+    volumes:
+      - mariadb_lotes_data:/var/lib/mysql
+
+  ms-lotes:
+    build: 
+      context: ./Inventario/rancho-smart-ms-lotes
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+      inventario-composer:
+        condition: service_healthy
+    env_file:
+      - .env
+    container_name: ms-lotes
+    ports:
+      - "8502:8502"
+    networks:
+      - rancho-smart-network
+
+  mariadb_productos:
+    image: mariadb:lts
+    container_name: mariadb_productos
+    environment:
+      MYSQL_ROOT_PASSWORD: RanchoSmart2@24
+      MYSQL_DATABASE: DB_MS_PRODUCTOS
+      MYSQL_USER: rancho-smart
+      MYSQL_PASSWORD: RanchoSmart2@24
+    ports:
+      - "33088:3306"
+    networks:
+      - rancho-smart-network
+    volumes:
+      - mariadb_productos_data:/var/lib/mysql
+
+  ms-productos:
+    build: 
+      context: ./Inventario/rancho-smart-ms-productos
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+      inventario-composer:
+        condition: service_healthy
+    env_file:
+      - .env
+    container_name: ms-productos
+    ports:
+      - "8503:8503"
+    networks:
+      - rancho-smart-network
+
+  mariadb_usuarios:
+    image: mariadb:lts
+    container_name: mariadb_usuarios
+    environment:
+      MYSQL_ROOT_PASSWORD: RanchoSmart2@24
+      MYSQL_DATABASE: DB_MS_USUARIOS
+      MYSQL_USER: rancho-smart
+      MYSQL_PASSWORD: RanchoSmart2@24
+    ports:
+      - "33072:3306"
+    networks:
+      - rancho-smart-network
+    volumes:
+      - mariadb_usuarios_data:/var/lib/mysql
+
+  ms-usuarios:
+    build: 
+      context: ./Personal/rancho-smart-ms-usuarios
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+      personal-composer:
+        condition: service_healthy
+    env_file:
+      - .env
+    container_name: ms-usuarios
+    ports:
+      - "8600:8600"
+    networks:
+      - rancho-smart-network
+
+  mariadb_credenciales:
+    image: mariadb:lts
+    container_name: mariadb_credenciales
+    environment:
+      MYSQL_ROOT_PASSWORD: RanchoSmart2@24
+      MYSQL_DATABASE: DB_MS_CREDENCIALES
+      MYSQL_USER: rancho-smart
+      MYSQL_PASSWORD: RanchoSmart2@24
+    ports:
+      - "33086:3306"
+    networks:
+      - rancho-smart-network
+    volumes:
+      - mariadb_credenciales_data:/var/lib/mysql
+
+  ms-credenciales:
+    build: 
+      context: ./Personal/rancho-smart-ms-credenciales
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+      personal-composer:
+        condition: service_healthy
+    env_file:
+      - .env
+    container_name: ms-credenciales
+    ports:
+      - "8601:8601"
+    networks:
+      - rancho-smart-network
+
+  mariadb_alimentacion_suplementos:
+    image: mariadb:lts
+    container_name: mariadb_alimentacion_suplementos
+    environment:
+      MYSQL_ROOT_PASSWORD: RanchoSmart2@24
+      MYSQL_DATABASE: DB_MS_ALIMENTACION_SUPLEMENTOS
+      MYSQL_USER: rancho-smart
+      MYSQL_PASSWORD: RanchoSmart2@24
+    ports:
+      - "33073:3306"
+    networks:
+      - rancho-smart-network
+    volumes:
+      - mariadb_alimentacion_suplementos_data:/var/lib/mysql
+  
+  ms-alimentacion-suplementos:
+    build: 
+      context: ./Produccion/rancho-smart-ms-alimentacion-suplementos
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+      produccion-composer:
+        condition: service_healthy
+    env_file:
+      - .env
+    container_name: ms-alimentacion-supplementos
+    ports:
+      - "8700:8700"
+    networks:
+      - rancho-smart-network
+
+  mariadb_control_calidad:
+    image: mariadb:lts
+    container_name: mariadb_control_calidad
+    environment:
+      MYSQL_ROOT_PASSWORD: RanchoSmart2@24
+      MYSQL_DATABASE: DB_MS_CONTROL_CALIDAD
+      MYSQL_USER: rancho-smart
+      MYSQL_PASSWORD: RanchoSmart2@24
+    ports:
+      - "33074:3306"
+    networks:
+      - rancho-smart-network
+    volumes:
+      - mariadb_control_calidad_data:/var/lib/mysql
+
+  ms-control-calidad:
+    build: 
+      context: ./Produccion/rancho-smart-ms-control-calidad
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+      produccion-composer:
+        condition: service_healthy
+    env_file:
+      - .env
+    container_name: ms-control-calidad
+    ports:
+      - "8701:8701"
+    networks:
+      - rancho-smart-network
+
+  mariadb_produccion_carne:
+    image: mariadb:lts
+    container_name: mariadb_produccion_carne
+    environment:
+      MYSQL_ROOT_PASSWORD: RanchoSmart2@24
+      MYSQL_DATABASE: DB_MS_PRODUCCION_CARNE
+      MYSQL_USER: rancho-smart
+      MYSQL_PASSWORD: RanchoSmart2@24
+    ports:
+      - "33075:3306"
+    networks:
+      - rancho-smart-network
+    volumes:
+      - mariadb_produccion_carne_data:/var/lib/mysql
+
+  ms-produccion-carne:
+    build: 
+      context: ./Produccion/rancho-smart-ms-produccion-carne
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+      produccion-composer:
+        condition: service_healthy
+    env_file:
+      - .env
+    container_name: ms-produccion-carne
+    ports:
+      - "8702:8702"
+    networks:
+      - rancho-smart-network
+
+  mariadb_produccion_leche:
+    image: mariadb:lts
+    container_name: mariadb_produccion_leche
+    environment:
+      MYSQL_ROOT_PASSWORD: RanchoSmart2@24
+      MYSQL_DATABASE: DB_MS_PRODUCCION_LECHE
+      MYSQL_USER: rancho-smart
+      MYSQL_PASSWORD: RanchoSmart2@24
+    ports:
+      - "33076:3306"
+    networks:
+      - rancho-smart-network
+    volumes:
+      - mariadb_produccion_leche_data:/var/lib/mysql
+
+  ms-produccion-leche:
+    build: 
+      context: ./Produccion/rancho-smart-ms-produccion-leche
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+      produccion-composer:
+        condition: service_healthy
+    env_file:
+      - .env
+    container_name: ms-produccion-leche
+    ports:
+      - "8703:8703"
+    networks:
+      - rancho-smart-network
+
+  mariadb_consultas:
+    image: mariadb:lts
+    container_name: mariadb_consultas
+    environment:
+      MYSQL_ROOT_PASSWORD: RanchoSmart2@24
+      MYSQL_DATABASE: DB_MS_CONSULTAS
+      MYSQL_USER: rancho-smart
+      MYSQL_PASSWORD: RanchoSmart2@24
+    ports:
+      - "33077:3306"
+    networks:
+      - rancho-smart-network
+    volumes:
+      - mariadb_consultas_data:/var/lib/mysql
+
+  ms-consultas:
+    build: 
+      context: ./Salud/rancho-smart-ms-consultas
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+      salud-composer:
+        condition: service_healthy
+    env_file:
+      - .env
+    container_name: ms-consultas
+    ports:
+      - "8800:8800"
+    networks:
+      - rancho-smart-network
+
+  mariadb_historial_medico:
+    image: mariadb:lts
+    container_name: mariadb_historial_medico
+    environment:
+      MYSQL_ROOT_PASSWORD: RanchoSmart2@24
+      MYSQL_DATABASE: DB_MS_HISTORIAL_MEDICO
+      MYSQL_USER: rancho-smart
+      MYSQL_PASSWORD: RanchoSmart2@24
+    ports:
+      - "33078:3306"
+    networks:
+      - rancho-smart-network
+    volumes:
+      - mariadb_historial_medico_data:/var/lib/mysql
+
+  ms-historial-medico:
+    build: 
+      context: ./Salud/rancho-smart-ms-historial-medico
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+      salud-composer:
+        condition: service_healthy
+    env_file:
+      - .env
+    container_name: ms-historial-medico
+    ports:
+      - "8801:8801"
+    networks:
+      - rancho-smart-network
+
+  mariadb_procedimientos_medicos:
+    image: mariadb:lts
+    container_name: mariadb_procedimientos_medicos
+    environment:
+      MYSQL_ROOT_PASSWORD: RanchoSmart2@24
+      MYSQL_DATABASE: DB_MS_PROCEDIMIENTOS_MEDICOS
+      MYSQL_USER: rancho-smart
+      MYSQL_PASSWORD: RanchoSmart2@24
+    ports:
+      - "33079:3306"
+    networks:
+      - rancho-smart-network
+    volumes:
+      - mariadb_procedimientos_medicos_data:/var/lib/mysql
+
+  ms-procedimientos-medicos:
+    build: 
+      context: ./Salud/rancho-smart-ms-procedimientos-medicos
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+      salud-composer:
+        condition: service_healthy
+    env_file:
+      - .env
+    container_name: ms-procedimientos-medicos
+    ports:
+      - "8802:8802"
+    networks:
+      - rancho-smart-network
+
+  mariadb_tratamientos:
+    image: mariadb:lts
+    container_name: mariadb_tratamientos
+    environment:
+      MYSQL_ROOT_PASSWORD: RanchoSmart2@24
+      MYSQL_DATABASE: DB_MS_TRATAMIENTOS
+      MYSQL_USER: rancho-smart
+      MYSQL_PASSWORD: RanchoSmart2@24
+    ports:
+      - "33080:3306"
+    networks:
+      - rancho-smart-network
+    volumes:
+      - mariadb_tratamientos_data:/var/lib/mysql
+
+  ms-tratamientos:
+    build: 
+      context: ./Salud/rancho-smart-ms-tratamientos
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+      salud-composer:
+        condition: service_healthy
+    env_file:
+      - .env
+    container_name: ms-tratamientos
+    ports:
+      - "8803:8803"
+    networks:
+      - rancho-smart-network
+
+  mariadb_vacunas:
+    image: mariadb:lts
+    container_name: mariadb_vacunas
+    environment:
+      MYSQL_ROOT_PASSWORD: RanchoSmart2@24
+      MYSQL_DATABASE: DB_MS_VACUNAS
+      MYSQL_USER: rancho-smart
+      MYSQL_PASSWORD: RanchoSmart2@24
+    ports:
+      - "33081:3306"
+    networks:
+      - rancho-smart-network
+    volumes:
+      - mariadb_vacunas_data:/var/lib/mysql
+
+  ms-vacunas:
+    build: 
+      context: ./Salud/rancho-smart-ms-vacunas
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+      salud-composer:
+        condition: service_healthy
+    env_file:
+      - .env
+    container_name: ms-vacunas
+    ports:
+      - "8804:8804"
+    networks:
+      - rancho-smart-network
+
+#  mariadb_clientes:
+#    image: mariadb:lts
+#    container_name: mariadb_clientes
+#    environment:
+#      MYSQL_ROOT_PASSWORD: RanchoSmart2@24
+#      MYSQL_DATABASE: DB_MS_CLIENTES
+#      MYSQL_USER: rancho-smart
+#      MYSQL_PASSWORD: RanchoSmart2@24
+#    ports:
+#      - "33082:3306"
+#    networks:
+#      - rancho-smart-network
+#    volumes:
+#      - mariadb_clientes_data:/var/lib/mysql
+#
+#  ms-clientes:
+#    build: 
+#      context: ./Ventas/rancho-smart-ms-clientes
+#      dockerfile: Dockerfile
+#      args:
+#        GITHUB_TOKEN: ${GITHUB_TOKEN}
+#    depends_on:
+#      config-server: 
+#        condition: service_healthy
+#      api-gateway: 
+#        condition: service_healthy
+#      ventas-composer:
+#        condition: service_healthy
+#    env_file:
+#      - .env
+#    container_name: ms-clientes
+#    ports:
+#      - "8900:8900"
+#    networks:
+#      - rancho-smart-network
+#
+  mariadb_inventario_ventas:
+    image: mariadb:lts
+    container_name: mariadb_inventario_ventas
+    environment:
+      MYSQL_ROOT_PASSWORD: RanchoSmart2@24
+      MYSQL_DATABASE: DB_MS_INVENTARIO_VENTAS
+      MYSQL_USER: rancho-smart
+      MYSQL_PASSWORD: RanchoSmart2@24
+    ports:
+      - "33083:3306"
+    networks:
+      - rancho-smart-network
+    volumes:
+      - mariadb_inventario_ventas_data:/var/lib/mysql
+
+  ms-inventario-ventas:
+    build: 
+      context: ./Ventas/rancho-smart-ms-inventario-ventas
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+      ventas-composer:
+        condition: service_healthy
+    env_file:
+      - .env
+    container_name: ms-inventario-ventas
+    ports:
+      - "8901:8901"
+    networks:
+      - rancho-smart-network
+#
+#  mariadb_mercado:
+#    image: mariadb:lts
+#    container_name: mariadb_mercado
+#    environment:
+#      MYSQL_ROOT_PASSWORD: RanchoSmart2@24
+#      MYSQL_DATABASE: DB_MS_MERCADO
+#      MYSQL_USER: rancho-smart
+#      MYSQL_PASSWORD: RanchoSmart2@24
+#    ports:
+#      - "33084:3306"
+#    networks:
+#      - rancho-smart-network
+#    volumes:
+#      - mariadb_mercado_data:/var/lib/mysql
+#
+#  ms-mercado:
+#    build: 
+#      context: ./Ventas/rancho-smart-ms-mercado
+#      dockerfile: Dockerfile
+#      args:
+#        GITHUB_TOKEN: ${GITHUB_TOKEN}
+#    depends_on:
+#      config-server: 
+#        condition: service_healthy
+#      api-gateway: 
+#        condition: service_healthy
+#      ventas-composer:
+#        condition: service_healthy
+#    env_file:
+#      - .env
+#    container_name: ms-mercado
+#    ports:
+#      - "8902:8902"
+#    networks:
+#      - rancho-smart-network
+#
+  mariadb_ventas:
+    image: mariadb:lts
+    container_name: mariadb_ventas
+    environment:
+      MYSQL_ROOT_PASSWORD: RanchoSmart2@24
+      MYSQL_DATABASE: DB_MS_VENTAS
+      MYSQL_USER: rancho-smart
+      MYSQL_PASSWORD: RanchoSmart2@24
+    ports:
+      - "33085:3306"
+    networks:
+      - rancho-smart-network
+    volumes:
+      - mariadb_ventas_data:/var/lib/mysql
+
+  ms-ventas:
+    build: 
+      context: ./Ventas/rancho-smart-ms-ventas
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+      ventas-composer:
+        condition: service_healthy
+    env_file:
+      - .env
+    container_name: ms-ventas
+    ports:
+      - "8903:8903"
+    networks:
+      - rancho-smart-network
+
+  apareamiento-composer:
+    build: 
+      context: ./Composer/rancho-smart-apareamiento
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/actuator/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    container_name: apareamiento-composer
+    ports:
+      - "8000:8000"
+    networks:
+      - rancho-smart-network    
+
+#  finanzas-composer:
+#    build: 
+#      context: ./Composer/rancho-smart-finanzas
+#      dockerfile: Dockerfile
+#      args:
+#        GITHUB_TOKEN: ${GITHUB_TOKEN}
+#    depends_on:
+#      config-server: 
+#        condition: service_healthy
+#      api-gateway: 
+#        condition: service_healthy
+#    env_file:
+#      - .env
+#    healthcheck:
+#      test: ["CMD", "curl", "-f", "http://localhost:8001/actuator/health"]
+#      interval: 15s
+#      timeout: 10s
+#      retries: 3
+#      start_period: 15s
+#    container_name: finanzas-composer
+#    ports:
+#      - "8001:8001"
+#    networks:
+#      - rancho-smart-network
+
+  infraestructura-composer:
+    build: 
+      context: ./Composer/rancho-smart-infraestructura
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/actuator/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    container_name: infraestructura-composer
+    ports:
+      - "8002:8002"
+    networks:
+      - rancho-smart-network      
+#
+#  integracion-composer:
+#    build: 
+#      context: ./Composer/rancho-smart-integracion
+#      dockerfile: Dockerfile
+#      args:
+#        GITHUB_TOKEN: ${GITHUB_TOKEN}
+#    depends_on:
+#      config-server: 
+#        condition: service_healthy
+#      api-gateway: 
+#        condition: service_healthy
+#    env_file:
+#      - .env
+#    healthcheck:
+#      test: ["CMD", "curl", "-f", "http://localhost:8003/actuator/health"]
+#      interval: 15s
+#      timeout: 10s
+#      retries: 3
+#      start_period: 15s
+#    container_name: integracion-composer
+#    ports:
+#      - "8003:8003"
+#    networks:
+#      - rancho-smart-network
+   
+  inventario-composer:
+    build: 
+      context: ./Composer/rancho-smart-inventario
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004/actuator/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    container_name: inventario-composer
+    ports:
+      - "8004:8004"
+    networks:
+      - rancho-smart-network
+
+  personal-composer:
+    build: 
+      context: ./Composer/rancho-smart-personal
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8005/actuator/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    container_name: personal-composer
+    ports:
+      - "8005:8005"
+    networks:
+      - rancho-smart-network
+
+  produccion-composer:
+    build: 
+      context: ./Composer/rancho-smart-produccion
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8006/actuator/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    container_name: produccion-composer
+    ports:
+      - "8006:8006"
+    networks:
+      - rancho-smart-network
+
+  salud-composer:
+    build: 
+      context: ./Composer/rancho-smart-salud
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8007/actuator/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    container_name: salud-composer
+    ports:
+      - "8007:8007"
+    networks:
+      - rancho-smart-network
+
+  ventas-composer:
+    build: 
+      context: ./Composer/rancho-smart-ventas
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      api-gateway: 
+        condition: service_healthy
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8008/actuator/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    container_name: ventas-composer
+    ports:
+      - "8008:8008"
+    networks:
+      - rancho-smart-network
+
+networks:
+  rancho-smart-network:
+    driver: bridge
+
+volumes:
+  zookeeper_data:
+  kafka_data:
+  mariadb_keycloak_data:
+  mariadb_cruces_data:
+  mariadb_genealogia_data:
+  mariadb_optimizacion_cruces_data:
+  mariadb_planificacion_cruces_data:
+  mariadb_partos_data:
+  mariadb_infraestructura_data:
+  mariadb_alimentos_data:
+  mariadb_animales_data:
+  mariadb_lotes_data:
+  mariadb_productos_data:
+  mariadb_usuarios_data:
+  mariadb_credenciales_data:
+  mariadb_alimentacion_suplementos_data:
+  mariadb_control_calidad_data:
+  mariadb_produccion_carne_data:
+  mariadb_produccion_leche_data:
+  mariadb_consultas_data:
+  mariadb_historial_medico_data:
+  mariadb_procedimientos_medicos_data:
+  mariadb_tratamientos_data:
+  mariadb_vacunas_data:
+  mariadb_inventario_ventas_data:
+  mariadb_ventas_data:
+  
+#  mariadb_mercado_data:
+#  mariadb_contabilidad_data:
+#  mariadb_conexiones_externas_data:
+#  mariadb_clientes_data:

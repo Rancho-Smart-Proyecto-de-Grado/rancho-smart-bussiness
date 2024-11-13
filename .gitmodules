@@ -1,0 +1,114 @@
+[submodule "Apareamiento/rancho-smart-ms-planificacion-cruces"]
+	path = Apareamiento/rancho-smart-ms-planificacion-cruces
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-planificacion-cruces.git
+[submodule "Apareamiento/rancho-smart-ms-cruces"]
+	path = Apareamiento/rancho-smart-ms-cruces
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-cruces.git
+[submodule "Apareamiento/rancho-smart-ms-optimizacion-cruces"]
+	path = Apareamiento/rancho-smart-ms-optimizacion-cruces
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-optimizacion-cruces.git
+[submodule "Apareamiento/rancho-smart-ms-genealogia"]
+	path = Apareamiento/rancho-smart-ms-genealogia
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-genealogia.git
+[submodule "Apareamiento/rancho-smart-ms-partos"]
+	path = Apareamiento/rancho-smart-ms-partos
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-partos.git
+[submodule "Composer/rancho-smart-ventas"]
+	path = Composer/rancho-smart-ventas
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ventas.git
+[submodule "Composer/rancho-smart-salud"]
+	path = Composer/rancho-smart-salud
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-salud.git
+[submodule "Composer/rancho-smart-produccion"]
+	path = Composer/rancho-smart-produccion
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-produccion.git
+[submodule "Composer/rancho-smart-personal"]
+	path = Composer/rancho-smart-personal
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-personal.git
+[submodule "Composer/rancho-smart-inventario"]
+	path = Composer/rancho-smart-inventario
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-inventario.git
+[submodule "Composer/rancho-smart-integracion"]
+	path = Composer/rancho-smart-integracion
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-integracion.git
+[submodule "Composer/rancho-smart-infraestructura"]
+	path = Composer/rancho-smart-infraestructura
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-infraestructura.git
+[submodule "Composer/rancho-smart-finanzas"]
+	path = Composer/rancho-smart-finanzas
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-finanzas.git
+[submodule "Composer/rancho-smart-apareamiento"]
+	path = Composer/rancho-smart-apareamiento
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-apareamiento.git
+[submodule "Config/rancho-smart-config-server"]
+	path = Config/rancho-smart-config-server
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-config-server.git
+[submodule "Config/rancho-smart-api-gateway"]
+	path = Config/rancho-smart-api-gateway
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-api-gateway.git
+[submodule "Config/rancho-smart-eureka-discovery-server"]
+	path = Config/rancho-smart-eureka-discovery-server
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-eureka-discovery-server.git
+[submodule "Finanzas/rancho-smart-ms-contabilidad"]
+	path = Finanzas/rancho-smart-ms-contabilidad
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-contabilidad.git
+[submodule "Infraestructura/rancho-smart-ms-infraestructura"]
+	path = Infraestructura/rancho-smart-ms-infraestructura
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-infraestructura.git
+[submodule "Integracion/rancho-smart-ms-conexiones-externas"]
+	path = Integracion/rancho-smart-ms-conexiones-externas
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-conexiones-externas.git
+[submodule "Inventario/rancho-smart-ms-alimentos"]
+	path = Inventario/rancho-smart-ms-alimentos
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-alimentos.git
+[submodule "Inventario/rancho-smart-ms-lotes"]
+	path = Inventario/rancho-smart-ms-lotes
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-lotes.git
+[submodule "Inventario/rancho-smart-ms-productos"]
+	path = Inventario/rancho-smart-ms-productos
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-productos.git
+[submodule "Inventario/rancho-smart-ms-animales"]
+	path = Inventario/rancho-smart-ms-animales
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-animales.git
+[submodule "Personal/rancho-smart-ms-credenciales"]
+	path = Personal/rancho-smart-ms-credenciales
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-credenciales.git
+[submodule "Personal/rancho-smart-ms-usuarios"]
+	path = Personal/rancho-smart-ms-usuarios
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-usuarios.git
+[submodule "Produccion/rancho-smart-ms-alimentacion-suplementos"]
+	path = Produccion/rancho-smart-ms-alimentacion-suplementos
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-alimentacion-suplementos.git
+[submodule "Produccion/rancho-smart-ms-control-calidad"]
+	path = Produccion/rancho-smart-ms-control-calidad
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-control-calidad.git
+[submodule "Produccion/rancho-smart-ms-produccion-carne"]
+	path = Produccion/rancho-smart-ms-produccion-carne
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-produccion-carne.git
+[submodule "Produccion/rancho-smart-ms-produccion-leche"]
+	path = Produccion/rancho-smart-ms-produccion-leche
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-produccion-leche.git
+[submodule "Salud/rancho-smart-ms-consultas"]
+	path = Salud/rancho-smart-ms-consultas
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-consultas.git
+[submodule "Salud/rancho-smart-ms-tratamientos"]
+	path = Salud/rancho-smart-ms-tratamientos
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-tratamientos.git
+[submodule "Salud/rancho-smart-ms-procedimientos-medicos"]
+	path = Salud/rancho-smart-ms-procedimientos-medicos
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-procedimientos-medicos.git
+[submodule "Salud/rancho-smart-ms-historial-medico"]
+	path = Salud/rancho-smart-ms-historial-medico
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-historial-medico.git
+[submodule "Salud/rancho-smart-ms-vacunas"]
+	path = Salud/rancho-smart-ms-vacunas
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-vacunas.git
+[submodule "Ventas/rancho-smart-ms-ventas"]
+	path = Ventas/rancho-smart-ms-ventas
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-ventas.git
+[submodule "Ventas/rancho-smart-ms-inventario-ventas"]
+	path = Ventas/rancho-smart-ms-inventario-ventas
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-inventario-ventas.git
+[submodule "Ventas/rancho-smart-ms-clientes"]
+	path = Ventas/rancho-smart-ms-clientes
+	url = https://github.com/Rancho-Smart-Proyecto-de-Grado/rancho-smart-ms-clientes.git
